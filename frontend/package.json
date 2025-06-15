@@ -1,0 +1,14 @@
+{
+  "name": "nexaflow-crm-frontend",
+  "version": "1.0.0",
+  "description": "Frontend HTML/CSS/JS puro para o NexaFlow CRM",
+  "scripts": {
+    "start": "live-server public --port=3001",
+    "watch-css": "sass --watch scss:public/css",
+    "build": "echo 'Frontend construído!'"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "sass": "^1.62.1"
+  }
+}
