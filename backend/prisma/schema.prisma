@@ -1,34 +1,31 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
+// Defininr a conexão com o banco de dados
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")  // Configurado no .env
+  provider = "postgresql"       // Tipo de banco (PostgreSQL, MySQL, etc.)
+  url      = env("DATABASE_URL") // Variável do arquivo .env
 }
 
 model Funcionario {
-  id           Int             @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   nome         String
-  time         String          // "prospecao", "vendas", "tecnico"
-  atendimentos Atendimento[]
+  time         String        // "prospecao", "vendas", "tecnico"
+  atendimentos Atendimento[] // Relação 1-N
 }
 
 model Cliente {
-  id           Int             @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   nome         String
   contato      String
-  origem       String          // "WhatsApp", "Email", etc.
-  atendimentos Atendimento[]
+  origem       String        // "whatsApp", "email", etc.
+  atendimentos Atendimento[] // Relação 1-N
 }
 
 model Atendimento {
-  id            Int            @id @default(autoincrement())
-  funcionario   Funcionario    @relation(fields: [funcionarioId], references: [id])
+  id            Int         @id @default(autoincrement())
+  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
   funcionarioId Int
-  cliente       Cliente        @relation(fields: [clienteId], references: [id])
+  cliente       Cliente     @relation(fields: [clienteId], references: [id])
   clienteId     Int
-  data          DateTime       @default(now())
-  status        String         // "prospectado", "vendido", "em_andamento"
-  origem        String         // Canal de contato (omnichannel)
+  status        String
+  origem        String
+  data          DateTime    @default(now())
 }
