@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - NexaFlow CRM</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar (Mesmo do dashboard) -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-stream"></i>
+                <span>NexaFlow</span>
+            </div>
+            
+            <nav class="menu">
+                <a href="./dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="active">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Atendimentos</span>
+                </a>
+                <a href="#">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+            </nav>
+            
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=2563eb&color=fff" alt="Usuário">
+                <div class="user-info">
+                    <strong>Administrador</strong>
+                    <small>admin@nexaflow.com</small>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Pesquisar clientes...">
+                </div>
+                <button class="btn-primary">
+                    <i class="fas fa-plus"></i> Novo Cliente
+                </button>
+            </header>
+
+            <div class="content-area">
+                <div class="flex-header">
+                    <h1 class="page-title">Clientes</h1>
+                    <div class="results-count">Mostrando 15 de 87 clientes</div>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select>
+                            <option>Todos</option>
+                            <option>Ativos</option>
+                            <option>Inativos</option>
+                            <option>Potenciais</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Ordenar por:</label>
+                        <select>
+                            <option>Data de Cadastro</option>
+                            <option>Nome A-Z</option>
+                            <option>Último Contato</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn-filter">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+                
+                <!-- Lista de Clientes -->
+                <div class="card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="select-all">
+                                    </th>
+                                    <th>Cliente</th>
+                                    <th>Contato</th>
+                                    <th>Origem</th>
+                                    <th>Último Contato</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-table">
+                                <!-- Preenchido via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginação -->
+                    <div class="pagination">
+                        <button class="pagination-btn" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="page-numbers">1 de 6</span>
+                        <button class="pagination-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Novo Cliente (Oculto por padrão) -->
+    <div class="modal-overlay" id="modal-cliente">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Novo Cliente</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-cliente">
+                    <div class="form-group">
+                        <label>Nome Completo</label>
+                        <input type="text" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="tel">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Origem</label>
+                        <select>
+                            <option>Site</option>
+                            <option>WhatsApp</option>
+                            <option>Indicação</option>
+                            <option>Evento</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <textarea rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel">Cancelar</button>
+                        <button type="submit" class="btn-save">Salvar Cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
