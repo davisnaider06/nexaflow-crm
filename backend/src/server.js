@@ -1,11 +1,15 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors'); // ← Aqui em cima
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
-const app = express();
+const app = express(); // ← Só depois disso que pode usar app.use()
+
+app.use(cors()); // ← Agora sim
 app.use(express.json());
-const PORT = process.env.SERVER_PORT || 3000
+
+const prisma = new PrismaClient();
+const PORT = process.env.SERVER_PORT || 3000;
 
 // Rota para criar atendimentos
 app.post('/atendimentos', async (req, res) => {
@@ -184,6 +188,58 @@ app.get('/funcionarios/:id/historico', async (req, res) => {
     });
   }
 });
+
+//rota do dashboard
+app.get('/dashboard', async (req, res) => {
+  const { time, funcionarioId } = req.query;
+
+  try {
+    const filtro = {};
+
+    if (time) {
+      filtro.funcionario = { time };
+    }
+
+    if (funcionarioId) {
+      filtro.funcionarioId = parseInt(funcionarioId);
+    }
+
+    const totalProspecao = await prisma.atendimento.count({
+      where: { status: 'prospecao', ...filtro }
+    });
+
+    const totalVendas = await prisma.atendimento.count({
+      where: { status: 'vendido', ...filtro }
+    });
+
+    const totalTecnico = await prisma.atendimento.count({
+      where: { status: 'tecnico', ...filtro }
+    });
+
+    const total = totalProspecao + totalVendas + totalTecnico;
+    const conversao = total > 0 ? ((totalVendas / total) * 100).toFixed(1) : '0';
+
+    const recentes = await prisma.atendimento.findMany({
+      where: filtro,
+      orderBy: { data: 'desc' },
+      take: 6,
+      include: { cliente: true, funcionario: true }
+    });
+
+    res.json({
+      totalProspecao,
+      totalVendas,
+      totalTecnico,
+      conversao,
+      recentes
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar dados do dashboard' });
+  }
+});
+
 
 
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
