@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,15 +8,26 @@
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <div class="app-container">
+
+                <!-- Botão fixo no topo da tela para abrir o menu -->
+        <button id="menu-toggle" class="menu-toggle-btn">
+        <i class="fas fa-bars"></i>
+        </button>
+
+
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
-                <i class="fas fa-stream"></i>
+               <button id="open-btn" class="btn"> <i class="fas fa-stream"></i></button>
                 <span>NexaFlow</span>
             </div>
-            
+   
+
+
+    
             <nav class="menu">
                 <a href="#" class="active">
                     <i class="fas fa-tachometer-alt"></i>
@@ -38,7 +50,7 @@
                     <span>Configurações</span>
                 </a>
             </nav>
-            
+
             <div class="user-profile">
                 <img src="https://ui-avatars.com/api/?name=Admin&background=2563eb&color=fff" alt="Usuário">
                 <div class="user-info">
@@ -63,7 +75,32 @@
 
             <div class="content-area">
                 <h1 class="page-title">Dashboard</h1>
-                
+
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label for="filtro-time">Time:</label>
+                        <select id="filtro-time">
+                            <option value="">Todos</option>
+                            <option value="prospecao">Prospecção</option>
+                            <option value="vendas">Vendas</option>
+                            <option value="tecnico">Técnico</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filtro-funcionario">Funcionário:</label>
+                        <select id="filtro-funcionario">
+                            <option value="">Todos</option>
+                            <!-- Os funcionários serão carregados via JS -->
+                        </select>
+                    </div>
+
+                    <button class="btn-filter" id="btn-aplicar-filtro">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
+                    </button>
+                </div>
+
+
                 <!-- Stats Cards -->
                 <div class="stats-grid">
                     <div class="stat-card bg-blue">
@@ -74,7 +111,7 @@
                         </div>
                         <i class="fas fa-user-plus"></i>
                     </div>
-                    
+
                     <div class="stat-card bg-green">
                         <div class="stat-info">
                             <h3>Vendas</h3>
@@ -83,7 +120,7 @@
                         </div>
                         <i class="fas fa-handshake"></i>
                     </div>
-                    
+
                     <div class="stat-card bg-orange">
                         <div class="stat-info">
                             <h3>Técnico</h3>
@@ -92,7 +129,7 @@
                         </div>
                         <i class="fas fa-tools"></i>
                     </div>
-                    
+
                     <div class="stat-card bg-purple">
                         <div class="stat-info">
                             <h3>Conversão</h3>
@@ -102,14 +139,14 @@
                         <i class="fas fa-chart-pie"></i>
                     </div>
                 </div>
-                
+
                 <!-- Recent Activities -->
                 <div class="card">
                     <div class="card-header">
                         <h2>Atendimentos Recentes</h2>
                         <a href="#" class="btn-view-all">Ver todos</a>
                     </div>
-                    
+
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -134,4 +171,5 @@
 
     <script src="../js/dashboard.js"></script>
 </body>
+
 </html>

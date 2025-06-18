@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atendimentos - NexaFlow CRM</title>
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <button id="open-btn" class="btn"><i class="fas fa-stream"></i></button>
+        <span>NexaFlow</span>
+      </div>
+      <nav class="menu">
+        <a href="./dashboard.html">
+          <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+        </a>
+        <a href="./clientes.html">
+          <i class="fas fa-users"></i><span>Clientes</span>
+        </a>
+        <a href="#" class="active">
+          <i class="fas fa-calendar-check"></i><span>Atendimentos</span>
+        </a>
+        <a href="#">
+          <i class="fas fa-chart-line"></i><span>Relatórios</span>
+        </a>
+        <a href="#">
+          <i class="fas fa-cog"></i><span>Configurações</span>
+        </a>
+      </nav>
+      <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=2563eb&color=fff" alt="Usuário">
+        <div class="user-info">
+          <strong>Administrador</strong>
+          <small>admin@nexaflow.com</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-bar">
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="search-atendimento" placeholder="Pesquisar atendimentos...">
+        </div>
+      </header>
+
+      <div class="content-area">
+        <h1 class="page-title">Atendimentos</h1>
+        <div class="card">
+          <div class="card-header">
+            <h2>Histórico</h2>
+            <a href="#" class="btn-view-all">Exportar</a>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Data</th>
+                  <th>Responsável</th>
+                  <th>Canal</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-atendimentos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button id="menu-toggle" class="menu-toggle-btn"><i class="fas fa-bars"></i></button>
+  <script src="../js/atendimentos.js"></script>
+</body>
+</html>

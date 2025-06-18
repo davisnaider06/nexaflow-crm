@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../images/Logo_de_Cérebro_com_Circuito-removebg-preview.png" type="image/x-icon" class="icon">
     <title>Clientes - NexaFlow CRM</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/clientes.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar (Mesmo do dashboard) -->
+         <!-- Botão fixo no topo da tela para abrir o menu -->
+        <button id="menu-toggle" class="menu-toggle-btn">
+        <i class="fas fa-bars"></i>
+        </button>
+
+
+        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
-                <i class="fas fa-stream"></i>
+               <button id="open-btn" class="btn"> <i class="fas fa-stream"></i></button>
                 <span>NexaFlow</span>
             </div>
-            
+
             <nav class="menu">
                 <a href="./dashboard.html">
                     <i class="fas fa-tachometer-alt"></i>
@@ -175,6 +182,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="../js/clientes.js"></script>
 </body>
 </html>
