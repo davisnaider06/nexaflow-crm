@@ -19,13 +19,23 @@ model Cliente {
   atendimentos Atendimento[] // Relação 1-N
 }
 
+
+enum StatusAtendimento {
+  aguardando_atendimento
+  aguardando_reuniao_time_tecnico
+  aguardando_alinhamento_campanha
+  aguardando_divulgacao
+  aguardando_resultados
+  aguardando_pagamento
+}
+
 model Atendimento {
   id            Int         @id @default(autoincrement())
   funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
   funcionarioId Int
   cliente       Cliente     @relation(fields: [clienteId], references: [id])
   clienteId     Int
-  status        String
+  status        StatusAtendimento
   origem        String
   data          DateTime    @default(now())
 }

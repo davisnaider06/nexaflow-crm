@@ -54,6 +54,52 @@ body {
     font-size: 1.8rem;
 }
 
+#open-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Oculta a sidebar quando estiver colapsada */
+.sidebar.collapsed {
+  transform: translateX(-100%);
+  position: fixed;
+  z-index: 100;
+}
+
+.menu-toggle-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  z-index: 1100;
+  display: none; /* começa escondido */
+}
+
+/* Exibe o botão quando o menu está colapsado */
+.sidebar.collapsed ~ .main-content ~ .menu-toggle-btn,
+.menu-toggle-btn.active {
+  display: block;
+}
+
+
+.main-content.expanded {
+  margin-left: 0 !important;
+}
+
+.sidebar {
+  transition: transform 0.3s ease;
+}
+
+
 .menu {
     flex: 1;
     padding: 20px 0;
@@ -118,13 +164,15 @@ body {
     color: var(--gray);
 }
 
-/* Main Content */
+
 .main-content {
-    flex: 1;
-    padding: 20px;
-    margin-left: 280px;
-    transition: all 0.3s ease;
+  padding-left: 30px;
+  padding-right: 20px;
+  flex: 1;
+  transition: all 0.3s ease;
 }
+
+
 
 .top-bar {
     display: flex;
@@ -632,4 +680,36 @@ tr:hover {
     th, td {
         padding: 12px 8px;
     }
+}
+
+.menu-toggle-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  z-index: 1100;
+  display: none;
+}
+
+.sidebar.collapsed ~ .main-content ~ .menu-toggle-btn,
+.menu-toggle-btn.active {
+  display: block;
+}
+
+
+/* Quando o menu estiver fechado (sidebar colapsada) centraliza e aumenta a search bar */
+.sidebar.collapsed ~ .main-content .top-bar .search-container {
+  margin: 0 auto;
+  width: 60%;
+  transition: all 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-content .top-bar {
+  justify-content: center;
 }
