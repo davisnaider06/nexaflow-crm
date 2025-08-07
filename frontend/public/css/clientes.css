@@ -164,6 +164,9 @@ body {
     color: var(--gray);
 }
 
+.novoCliente{
+    text-decoration: none;
+}
 
 .main-content {
   padding-left: 30px;

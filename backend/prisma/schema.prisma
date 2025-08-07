@@ -1,24 +1,67 @@
-// Defininr a conexão com o banco de dados
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
-  provider = "postgresql"       // Tipo de banco (PostgreSQL, MySQL, etc.)
-  url      = env("DATABASE_URL") // Variável do arquivo .env
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos do CRM
+
+enum Papel {
+  OWNER
+  EMPLOYEE
+}
+
+model Users {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  senha     String
+  nome      String?
+  papel     Papel    @default(OWNER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  funcionarios Funcionario[]
+  clientes     Cliente[]
+  atendimentos Atendimento[]
 }
 
 model Funcionario {
-  id           Int           @id @default(autoincrement())
-  nome         String
-  time         String        // "prospecao", "vendas", "tecnico"
-  atendimentos Atendimento[] // Relação 1-N
+  id             Int      @id @default(autoincrement())
+  nomeCompleto   String
+  email          String   @unique
+  senha          String
+  time           String // <-- Campo 'time' adicionado aqui
+  userId         Int
+  user           Users     @relation(fields: [userId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relações
+  atendimentos Atendimento[]
+  clientes     Cliente[]
 }
 
 model Cliente {
-  id           Int           @id @default(autoincrement())
-  nome         String
-  contato      String
-  origem       String        // "whatsApp", "email", etc.
-  atendimentos Atendimento[] // Relação 1-N
-}
+  id        Int      @id @default(autoincrement())
+  nome      String
+  contato   String?
+  origem    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      Users     @relation(fields: [userId], references: [id])
+  
+  criadoPorId Int?
+  criadoPor   Funcionario? @relation(fields: [criadoPorId], references: [id])
 
+  atendimentos Atendimento[]
+}
 
 enum StatusAtendimento {
   aguardando_atendimento
@@ -27,15 +70,20 @@ enum StatusAtendimento {
   aguardando_divulgacao
   aguardando_resultados
   aguardando_pagamento
+  vendido
 }
 
 model Atendimento {
-  id            Int         @id @default(autoincrement())
-  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
-  funcionarioId Int
-  cliente       Cliente     @relation(fields: [clienteId], references: [id])
+  id            Int      @id @default(autoincrement())
+  data          DateTime @default(now())
+  descricao     String?
+  status        StatusAtendimento @default(aguardando_atendimento)
+  userId        Int
+  user          Users     @relation(fields: [userId], references: [id])
   clienteId     Int
-  status        StatusAtendimento
-  origem        String
-  data          DateTime    @default(now())
+  cliente       Cliente  @relation(fields: [clienteId], references: [id])
+  funcionarioId Int
+  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

@@ -1,23 +1,282 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/login.css">
-    <title>Login</title>
+    <title>NexaFlow CRM - Acesso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 100%;
+        }
+        .form-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.2s ease-in-out;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .btn-secondary {
+            color: #4f46e5;
+            font-weight: 500;
+            transition: color 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            color: #4338ca;
+        }
+        .message-box {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        .message-box.success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .message-box.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
-<body>
-   <div class="login-card">
-        <h1>NexaFlow</h1>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="container bg-white p-8 rounded-xl shadow-lg w-2/5">
+        <h2 id="form-title" class="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="Digite seu Email">
+        
+        <div id="message-box" class="message-box hidden"></div>
 
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" name="senha" placeholder="Digite sua Senha">
+        <!-- Login form -->
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                <input type="email" id="login-email" name="email" class="input-field" required>
+            </div>
+            <div>
+                <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Senha:</label>
+                <input type="password" id="login-password" name="senha" class="input-field" required>
+            </div>
+            <div>
+                <label for="login-type" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Login:</label>
+                <select id="login-type" name="loginType" class="input-field" required>
+                    <option value="owner">Dono da Conta</option>
+                    <option value="employee">Colaborador</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary w-full">Entrar</button>
+            <p class="text-center text-sm text-gray-600 mt-4">É o primeiro acesso do dono da conta? <a href="#" id="show-register-owner" class="btn-secondary">Cadastre-se aqui</a></p>
+        </form>
 
-        <button type="submit">Entrar</button>
-        <a href="#">Esqueceu a senha?</a>
-   </div>
+       
+        <form id="register-owner-form" class="space-y-4 hidden">
+            <div>
+                <label for="register-owner-email" class="block text-sm font-medium text-gray-700 mb-1">Email (Dono da Conta):</label>
+                <input type="email" id="register-owner-email" name="email" class="input-field" required>
+            </div>
+            <div>
+                <label for="register-owner-password" class="block text-sm font-medium text-gray-700 mb-1">Senha:</label>
+                <input type="password" id="register-owner-password" name="senha" class="input-field" required>
+            </div>
+            <div>
+                <label for="register-owner-company" class="block text-sm font-medium text-gray-700 mb-1">Nome da Empresa (Opcional):</label>
+                <input type="text" id="register-owner-company" name="nome" class="input-field">
+            </div>
+            <button type="submit" class="btn-primary w-full">Cadastrar Dono da Conta</button>
+            <p class="text-center text-sm text-gray-600 mt-4">Já tem uma conta? <a href="#" id="show-login" class="btn-secondary">Voltar para Login</a></p>
+        </form>
+    </div>
+
+    <script>
+        console.log("Script iniciado.");
+        const API_BASE_URL = `http://localhost:3010/api/auth`;
+
+        const loginForm = document.getElementById('login-form');
+        const registerOwnerForm = document.getElementById('register-owner-form');
+        const showRegisterOwnerBtn = document.getElementById('show-register-owner');
+        const showLoginBtn = document.getElementById('show-login');
+        const formTitle = document.getElementById('form-title');
+        const messageBox = document.getElementById('message-box');
+        const loginTypeSelect = document.getElementById('login-type');
+
+        console.log("Elementos do DOM obtidos.");
+
+        // Função para exibir mensagens
+        function showMessage(message, type) {
+            console.log(`Exibindo mensagem: ${message} (Tipo: ${type})`);
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${type}`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Função para alternar entre formulários
+        function showForm(formType) {
+            console.log(`Alternando para o formulário: ${formType}`);
+            loginForm.classList.add('hidden');
+            registerOwnerForm.classList.add('hidden');
+
+            if (formType === 'login') {
+                loginForm.classList.remove('hidden');
+                formTitle.textContent = 'Login';
+            } else if (formType === 'register-owner') {
+                registerOwnerForm.classList.remove('hidden');
+                formTitle.textContent = 'Cadastro Dono da Conta';
+            }
+            messageBox.classList.add('hidden');
+        }
+
+        // Event Listeners para alternar formulários
+        showRegisterOwnerBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("Clique em 'Cadastre-se aqui'.");
+            showForm('register-owner');
+        });
+
+        showLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log("Clique em 'Voltar para Login'.");
+            showForm('login');
+        });
+
+        // Lógica para o formulário de Cadastro do Dono da Conta
+        registerOwnerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Evento de submit do formulário de cadastro capturado.");
+
+            const email = document.getElementById('register-owner-email').value;
+            const senha = document.getElementById('register-owner-password').value;
+            const nome = document.getElementById('register-owner-company').value;
+
+            console.log(`Dados para cadastro: Email=${email}, Senha=${senha}, Nome=${nome}`);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register-owner`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, senha, nome }),
+                });
+
+                console.log(`Resposta da API de cadastro recebida. Status: ${response.status}`);
+                const data = await response.json();
+                console.log('Dados da resposta:', data);
+
+                if (response.ok) {
+                    showMessage(data.message || 'Dono da conta cadastrado com sucesso!', 'success');
+                    registerOwnerForm.reset();
+                    showForm('login');
+                } else {
+                    showMessage(data.error || 'Erro ao cadastrar dono da conta. Tente novamente.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro na requisição de cadastro do dono da conta:', error);
+                showMessage('Erro de conexão. Verifique se o servidor está rodando.', 'error');
+            }
+        });
+
+        // Lógica para o formulário de Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Evento de submit do formulário de login capturado.");
+
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-password').value;
+            const loginType = loginTypeSelect.value;
+
+            console.log(`Dados para login: Email=${email}, Senha=${senha}, Tipo=${loginType}`);
+
+            let loginEndpoint = '';
+            if (loginType === 'owner') {
+                loginEndpoint = `${API_BASE_URL}/login-owner`;
+            } else if (loginType === 'employee') {
+                loginEndpoint = `${API_BASE_URL}/login-employee`;
+            } else {
+                showMessage('Tipo de login inválido.', 'error');
+                console.error("Erro: Tipo de login inválido.");
+                return;
+            }
+
+            console.log(`Endpoint da API de login: ${loginEndpoint}`);
+
+            try {
+                const response = await fetch(loginEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, senha }),
+                });
+
+                console.log(`Resposta da API de login recebida. Status: ${response.status}`);
+                const data = await response.json();
+                console.log('Dados da resposta:', data);
+
+                if (response.ok) {
+                    showMessage(data.message || 'Login realizado com sucesso!', 'success');
+                    localStorage.setItem('jwtToken', data.token);
+
+                    if (loginType === 'owner') {
+                        localStorage.setItem('userId', data.user.id);
+                        localStorage.setItem('userEmail', data.user.email);
+                        localStorage.setItem('userName', data.user.nome || data.user.email);
+                        localStorage.setItem('userRole', data.user.userRole);
+                    } else if (loginType === 'employee') {
+                        localStorage.setItem('funcionarioId', data.funcionario.id);
+                        localStorage.setItem('funcionarioEmail', data.funcionario.email);
+                        localStorage.setItem('funcionarioNome', data.funcionario.nomeCompleto);
+                        localStorage.setItem('userId', data.funcionario.userId);
+                        localStorage.setItem('userRole', data.funcionario.userRole);
+                    }
+
+                    loginForm.reset();
+                    window.location.href = 'dashboard.html';
+                    console.log('Login bem-sucedido! Redirecionando...');
+                } else {
+                    showMessage(data.error || 'Erro no login. Verifique suas credenciais.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro na requisição de login:', error);
+                showMessage('Erro de conexão. Verifique se o servidor está rodando.', 'error');
+            }
+        });
+
+        // Inicializa mostrando o formulário de login
+        showForm('login');
+        console.log("Página carregada, formulário de login exibido.");
+    </script>
 </body>
 </html>

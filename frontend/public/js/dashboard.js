@@ -1,146 +1,241 @@
-// ========== DASHBOARD ==========
+// Constantes para URLs da API
+const API_BASE_URL = `http://localhost:3010/api`;
 
-async function carregarDashboard() {
-  try {
-    const res = await fetch("http://localhost:3010/dashboard");
-    const data = await res.json();
+// Referências dos elementos do DOM
+const sidebar = document.querySelector('.sidebar');
+const menuToggleBtn = document.querySelector('.menu-toggle-btn');
+const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+const logoutBtn = document.getElementById('logout-btn');
 
-    const cards = document.querySelectorAll(".stat-card");
-    cards[0].querySelector("p").textContent = data.totalProspecao;
-    cards[1].querySelector("p").textContent = data.totalVendas;
-    cards[2].querySelector("p").textContent = data.totalTecnico;
-    cards[3].querySelector("p").textContent = `${data.conversao}%`;
+// IDs para os contadores
+const totalAguardandoAtendimento = document.getElementById('total-aguardando-atendimento');
+const totalAguardandoReuniao = document.getElementById('total-aguardando-reuniao-time-tecnico');
+const totalAguardandoAlinhamento = document.getElementById('total-aguardando-alinhamento-campanha');
+const totalAguardandoDivulgacao = document.getElementById('total-aguardando-divulgacao');
+const totalAguardandoResultados = document.getElementById('total-aguardando-resultados');
+const totalAguardandoPagamento = document.getElementById('total-aguardando-pagamento');
+const totalVendas = document.getElementById('total-vendas');
+const conversao = document.getElementById('conversao');
 
-    const tbody = document.getElementById("atendimentos-table");
-    tbody.innerHTML = "";
+// IDs para o perfil do usuário
+const userProfileName = document.getElementById('user-profile-name');
+const userProfileEmail = document.getElementById('user-profile-email');
+const userProfileAvatar = document.getElementById('user-profile-avatar');
 
-    data.recentes.forEach((a) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${a.cliente.nome}</td>
-        <td>${new Date(a.data).toLocaleDateString()}</td>
-        <td>${a.funcionario.nome}</td>
-        <td>${a.origem}</td>
-        <td><span class="status-badge status-${a.status}">${a.status}</span></td>
-        <td><button class="action-btn"><i class="fas fa-eye"></i></button></td>
-      `;
-      tbody.appendChild(row);
+// IDs para os filtros
+const filtroTimeSelect = document.getElementById('filtro-time');
+const filtroFuncionarioSelect = document.getElementById('filtro-funcionario');
+const btnAplicarFiltro = document.getElementById('btn-aplicar-filtro');
+
+// ID para o corpo da tabela
+const atendimentosTableBody = document.getElementById('atendimentos-table');
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Página do painel carregada. A verificar a autenticação...");
+    checkAuthAndLoadData();
+});
+
+// Event listeners para o menu mobile
+if (menuToggleBtn) {
+    menuToggleBtn.addEventListener('click', () => {
+        sidebar.classList.add('active');
     });
-  } catch (error) {
-    console.error("Erro ao carregar dashboard:", error);
-  }
 }
 
-// ========== CLIENTES (SOMENTE SE A TABELA EXISTIR) ==========
+if (closeSidebarBtn) {
+    closeSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+    });
+}
 
-function carregarClientes() {
-  const clientes = [
-    { id: 1, nome: "João Silva", email: "joao@empresa.com", telefone: "(11) 99999-9999", origem: "Site", ultimoContato: "10/05/2024", status: "ativo" },
-    { id: 2, nome: "Maria Souza", email: "maria@empresa.com", telefone: "(11) 98888-8888", origem: "WhatsApp", ultimoContato: "09/05/2024", status: "potencial" },
-    { id: 3, nome: "Carlos Oliveira", email: "carlos@empresa.com", telefone: "(11) 97777-7777", origem: "Indicação", ultimoContato: "08/05/2024", status: "inativo" },
-    { id: 4, nome: "Ana Santos", email: "ana@empresa.com", telefone: "(11) 96666-6666", origem: "Evento", ultimoContato: "07/05/2024", status: "ativo" },
-    { id: 5, nome: "Pedro Costa", email: "pedro@empresa.com", telefone: "(11) 95555-5555", origem: "Site", ultimoContato: "06/05/2024", status: "ativo" },
-  ];
+// Event listener para o botão de logout
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log("A executar logout.");
+        localStorage.clear();
+        window.location.href = 'login.html';
+    });
+}
 
-  const tableBody = document.getElementById("clientes-table");
-  tableBody.innerHTML = "";
+// Event listener para o botão de aplicar filtros
+if (btnAplicarFiltro) {
+    btnAplicarFiltro.addEventListener('click', () => {
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            // Recarrega os dados com os filtros aplicados
+            fetchDashboardData(token, filtroFuncionarioSelect.value);
+        }
+    });
+}
 
-  clientes.forEach((cliente) => {
-    const row = document.createElement("tr");
+// Função para verificar a autenticação e carregar os dados
+async function checkAuthAndLoadData() {
+    const token = localStorage.getItem('jwtToken');
+    const userRole = localStorage.getItem('userRole');
 
-    let statusClass = "";
-    let statusText = "";
+    // ADICIONADO: Logs de depuração para verificar o token e a função (role)
+    console.log("Token no localStorage:", token);
+    console.log("Papel do Utilizador no localStorage:", userRole);
 
-    switch (cliente.status) {
-      case "ativo":
-        statusClass = "status-concluido";
-        statusText = "Ativo";
-        break;
-      case "potencial":
-        statusClass = "status-andamento";
-        statusText = "Potencial";
-        break;
-      case "inativo":
-        statusClass = "status-pendente";
-        statusText = "Inativo";
-        break;
+    if (!token || !userRole) {
+        console.error("Token de autenticação ou papel do utilizador não encontrado. A redirecionar para o login.");
+        window.location.href = 'login.html';
+        return;
     }
 
-    row.innerHTML = `
-      <td><input type="checkbox"></td>
-      <td>
-        <div class="client-name">${cliente.nome}</div>
-        <small class="client-id">ID: ${cliente.id}</small>
-      </td>
-      <td>
-        <div>${cliente.email}</div>
-        <small>${cliente.telefone}</small>
-      </td>
-      <td>${cliente.origem}</td>
-      <td>${cliente.ultimoContato}</td>
-      <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-      <td>
-        <button class="action-btn" title="Editar"><i class="fas fa-edit"></i></button>
-        <button class="action-btn" title="Histórico"><i class="fas fa-history"></i></button>
-      </td>
-    `;
-
-    tableBody.appendChild(row);
-  });
+    // Exibir informações do utilizador na sidebar
+    updateUserInfo();
+    
+    // Carregar funcionários (para o filtro) e dados do painel
+    await fetchFuncionarios(token);
+    await fetchDashboardData(token);
 }
 
-function setupModal() {
-  const modal = document.getElementById("modal-cliente");
-  const btnNovo = document.querySelector(".btn-primary");
-  const btnCancelar = document.querySelector(".btn-cancel");
-  const btnFechar = document.querySelector(".close-modal");
-
-  if (!modal || !btnNovo || !btnCancelar || !btnFechar) return;
-
-  btnNovo.addEventListener("click", () => (modal.style.display = "flex"));
-  btnCancelar.addEventListener("click", () => (modal.style.display = "none"));
-  btnFechar.addEventListener("click", () => (modal.style.display = "none"));
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.style.display = "none";
-  });
+// Função para atualizar as informações do usuário na sidebar
+function updateUserInfo() {
+    const userName = localStorage.getItem('userName');
+    const userEmail = localStorage.getItem('userEmail');
+    const userInitials = userName ? userName.split(' ').map(n => n[0]).join('') : 'A';
+    
+    if (userProfileName) userProfileName.textContent = userName || 'Administrador';
+    if (userProfileEmail) userProfileEmail.textContent = userEmail || 'admin@nexaflow.com';
+    if (userProfileAvatar) userProfileAvatar.src = `https://ui-avatars.com/api/?name=${userInitials}&background=4361ee&color=fff`;
 }
 
-// ========== INICIALIZAÇÃO GERAL ==========
+// Função para buscar a lista de funcionários para o filtro
+async function fetchFuncionarios(token) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/funcionarios`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-window.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("atendimentos-table")) {
-    carregarDashboard();
-  }
+        if (!response.ok) {
+            // ADICIONADO: Log de status de resposta para melhor depuração
+            console.error(`Falha no pedido de funcionários. Status: ${response.status}`);
+            throw new Error('Falha ao carregar funcionários.');
+        }
+        const funcionarios = await response.json();
+        renderFuncionarios(funcionarios);
+    } catch (error) {
+        console.error('Erro ao carregar funcionários:', error);
+    }
+}
 
-  if (document.getElementById("clientes-table")) {
-    carregarClientes();
-    setupModal();
-
-    const searchInput = document.querySelector(".search-container input");
-    searchInput?.addEventListener("input", function () {
-      const searchTerm = this.value.toLowerCase();
-      const rows = document.querySelectorAll("#clientes-table tr");
-
-      rows.forEach((row) => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? "" : "none";
-      });
+// Função para renderizar os funcionários no select de filtro
+function renderFuncionarios(funcionarios) {
+    if (!filtroFuncionarioSelect) return;
+    filtroFuncionarioSelect.innerHTML = '<option value="">Todos</option>';
+    funcionarios.forEach(funcionario => {
+        const option = document.createElement('option');
+        option.value = funcionario.id;
+        option.textContent = funcionario.nomeCompleto;
+        filtroFuncionarioSelect.appendChild(option);
     });
-  }
+}
+        
+// Função para carregar os dados do painel a partir do backend
+async function fetchDashboardData(token, funcionarioId = '') {
+    console.log("A tentar carregar dados do painel...");
+    try {
+        const url = new URL(`${API_BASE_URL}/dashboard`);
+        if (funcionarioId) {
+            url.searchParams.append('funcionarioId', funcionarioId);
+        }
 
-  // Menu lateral abre/fecha
-  const btnOpen = document.getElementById("open-btn");
-  const toggleBtn = document.getElementById("menu-toggle"); // novo botão fixo
-  const sidebar = document.querySelector(".sidebar");
-  const main = document.querySelector(".main-content");
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-  const toggleSidebar = () => {
-    sidebar.classList.toggle("collapsed");
-    main.classList.toggle("expanded");
-    toggleBtn.classList.toggle("active");
-  };
+        if (!response.ok) {
+            if (response.status === 401) {
+                console.error('Sessão expirada. A redirecionar para o login.');
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+            // ADICIONADO: Log de status de resposta para melhor depuração
+            console.error(`Falha no pedido do painel. Status: ${response.status}`);
+            throw new Error('Falha ao carregar os dados do painel.');
+        }
 
-  btnOpen?.addEventListener("click", toggleSidebar);
-  toggleBtn?.addEventListener("click", toggleSidebar);
-});
+        const data = await response.json();
+        console.log('Dados do painel recebidos:', data);
+        renderDashboard(data);
+    } catch (error) {
+        console.error('Erro ao buscar dados do painel:', error);
+        // Exibir mensagem de erro ou manter os valores em 0
+    }
+}
+
+// Função para atualizar o DOM com os dados recebidos
+function renderDashboard(data) {
+    if (!data) return;
+
+    if (totalAguardandoAtendimento) totalAguardandoAtendimento.textContent = data.aguardandoAtendimento || 0;
+    if (totalAguardandoReuniao) totalAguardandoReuniao.textContent = data.aguardandoReuniao || 0;
+    if (totalAguardandoAlinhamento) totalAguardandoAlinhamento.textContent = data.aguardandoAlinhamento || 0;
+    if (totalAguardandoDivulgacao) totalAguardandoDivulgacao.textContent = data.aguardandoDivulgacao || 0;
+    if (totalAguardandoResultados) totalAguardandoResultados.textContent = data.aguardandoResultados || 0;
+    if (totalAguardandoPagamento) totalAguardandoPagamento.textContent = data.aguardandoPagamento || 0;
+    if (totalVendas) totalVendas.textContent = data.vendasFechadas || 0;
+
+    const conversaoValue = data.conversao ? `${data.conversao}%` : '0%';
+    if (conversao) conversao.textContent = conversaoValue;
+
+    // Renderizar atendimentos recentes
+    renderAtendimentosRecentes(data.atendimentosRecentes);
+}
+
+// Função para converter o status da API para uma classe CSS
+function getStatusClass(status) {
+    const statusMap = {
+        'Aguardando Atendimento': 'status-aguardando_atendimento',
+        'Aguardando Reunião - Time Técnico': 'status-aguardando_reuniao_time_tecnico',
+        'Aguardando Alinhamento - Campanha': 'status-aguardando_alinhamento_campanha',
+        'Aguardando Divulgação': 'status-aguardando_divulgacao',
+        'Aguardando Resultados': 'status-aguardando_resultados',
+        'Aguardando Pagamento': 'status-aguardando_pagamento',
+        'Vendido': 'status-vendido'
+    };
+    return statusMap[status] || 'status-default'; // Retorna 'status-default' se não houver correspondência
+}
+
+function renderAtendimentosRecentes(atendimentos) {
+    if (!atendimentosTableBody) return;
+    atendimentosTableBody.innerHTML = ''; // Limpar a tabela
+
+    if (!atendimentos || atendimentos.length === 0) {
+        const noDataRow = document.createElement('tr');
+        noDataRow.innerHTML = `<td colspan="6" style="text-align: center; color: var(--gray);">
+                                    Nenhum atendimento recente encontrado.
+                                </td>`;
+        atendimentosTableBody.appendChild(noDataRow);
+        return;
+    }
+
+    atendimentos.forEach(atendimento => {
+        const row = document.createElement('tr');
+        const statusClass = getStatusClass(atendimento.status);
+        row.innerHTML = `
+            <td>${atendimento.clienteNome}</td>
+            <td>${new Date(atendimento.dataCriacao).toLocaleDateString()}</td>
+            <td>${atendimento.responsavelNome}</td>
+            <td>${atendimento.canal}</td>
+            <td>
+                <span class="status-badge ${statusClass}">
+                    ${atendimento.status}
+                </span>
+            </td>
+            <td>
+                <button class="action-btn"><i class="fas fa-eye"></i></button>
+                <button class="action-btn"><i class="fas fa-edit"></i></button>
+                <button class="action-btn"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+        atendimentosTableBody.appendChild(row);
+    });
+}

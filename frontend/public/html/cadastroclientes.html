@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registo de Cliente</title>
+    <!-- Inclui o Tailwind CSS para o estilo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Animações simples para a UI */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Container principal do formulário, centralizado na página -->
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg animate-fade-in-up">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Registo de Cliente</h2>
+        
+        <!-- Formulário de Registo -->
+        <form id="client-form" class="space-y-6">
+            <div>
+                <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                    placeholder="Ex: João Silva"
+                    required
+                />
+            </div>
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Endereço de Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                    placeholder="Ex: joao.silva@email.com"
+                    required
+                />
+            </div>
+            <div>
+                <label for="telefone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                <input
+                    type="tel"
+                    id="telefone"
+                    name="telefone"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                    placeholder="Ex: 912345678"
+                    required
+                />
+            </div>
+            <button
+                type="submit"
+                id="submit-button"
+                class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:bg-indigo-400 disabled:cursor-not-allowed"
+            >
+                Registar Cliente
+            </button>
+        </form>
+        
+        <!-- Contém as mensagens de feedback -->
+        <div id="message-container" class="mt-4"></div>
+    </div>
+
+    <!-- Script JavaScript para lidar com o envio do formulário -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('client-form');
+            const submitButton = document.getElementById('submit-button');
+            const messageContainer = document.getElementById('message-container');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Impede o recarregamento da página
+                
+                // Limpa mensagens anteriores
+                messageContainer.innerHTML = '';
+
+                // Obtém os dados do formulário
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                // Altera o estado do botão para indicar o progresso
+                submitButton.disabled = true;
+                submitButton.textContent = 'A registar...';
+
+                try {
+                    // Endpoint da sua API. Certifique-se de que o URL está correto.
+                    const apiUrl = 'http://localhost:3010/api/clientes';
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    // Se a resposta da API não for bem-sucedida, lança um erro
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Falha ao criar o cliente.');
+                    }
+
+                    // Se for bem-sucedido, mostra mensagem de sucesso
+                    showMessage('Cliente registado com sucesso!', 'success');
+                    form.reset(); // Limpa o formulário para um novo registo
+
+                } catch (error) {
+                    // Em caso de erro, mostra mensagem de erro
+                    showMessage(error.message || 'Ocorreu um erro ao registar o cliente.', 'error');
+                } finally {
+                    // Restaura o estado do botão independentemente do resultado
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Registar Cliente';
+                }
+            });
+
+            // Função auxiliar para mostrar mensagens de feedback
+            function showMessage(message, type) {
+                const alertClass = type === 'success'
+                    ? 'bg-green-100 text-green-800 border-green-300' // Estilo para sucesso
+                    : 'bg-red-100 text-red-800 border-red-300';     // Estilo para erro
+                
+                const messageHtml = `
+                    <div class="p-4 rounded-lg border text-center animate-fade-in ${alertClass}">
+                        ${message}
+                    </div>
+                `;
+                messageContainer.innerHTML = messageHtml;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,10 +5,20 @@
     --light: #f8f9fa;
     --dark: #212529;
     --gray: #6c757d;
-    --success: #4cc9f0;
+    --success: #4cc9f0; /* Mantido seu sucesso original */
     --warning: #f8961e;
     --danger: #f72585;
     --bg-color: #f1f5f9;
+
+    /* Novas variáveis de cor para os cards de status, baseadas nos seus estilos */
+    --card-bg-primary: #4361ee;
+    --card-bg-warning: #f8961e;
+    --card-bg-secondary: #4895ef;
+    --card-bg-danger: #f72585;
+    --card-bg-gray: #6c757d;
+    --card-bg-dark: #212529;
+    --card-bg-success: #4cc9f0; /* Usando seu sucesso original */
+    --card-bg-primary-dark: #3a0ca3;
 }
 
 * {
@@ -27,6 +37,7 @@ body {
 .app-container {
     display: flex;
     min-height: 100vh;
+    transition: margin-left 0.3s ease;
 }
 
 /* Sidebar */
@@ -36,7 +47,12 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    z-index: 1000;
 }
 
 .logo {
@@ -54,49 +70,52 @@ body {
     font-size: 1.8rem;
 }
 
-#open-btn {
+#close-sidebar-btn {
     background: none;
     border: none;
     color: var(--primary);
     font-size: 24px;
     cursor: pointer;
+    margin-right: 10px;
+    display: none;
 }
 
-/* Oculta a sidebar quando estiver colapsada */
-.sidebar.collapsed {
-  transform: translateX(-100%);
-  position: fixed;
-  z-index: 100;
+
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    #close-sidebar-btn {
+        display: block;
+    }
+    .app-container.sidebar-active .main-content {
+        margin-left: 280px;
+    }
 }
+
 
 .menu-toggle-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  z-index: 1100;
-  display: none; /* começa escondido */
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 1100;
+    display: none;
 }
 
-/* Exibe o botão quando o menu está colapsado */
-.sidebar.collapsed ~ .main-content ~ .menu-toggle-btn,
-.menu-toggle-btn.active {
-  display: block;
-}
-
-
-.main-content.expanded {
-  margin-left: 0 !important;
-}
-
-.sidebar {
-  transition: transform 0.3s ease;
+@media (max-width: 992px) {
+    .menu-toggle-btn {
+        display: block;
+    }
 }
 
 
@@ -166,12 +185,18 @@ body {
 
 
 .main-content {
-  padding-left: 30px;
-  padding-right: 20px;
-  flex: 1;
-  transition: all 0.3s ease;
+    padding-left: 30px;
+    padding-right: 20px;
+    flex: 1;
+    transition: all 0.3s ease;
+    margin-left: 280px;
 }
 
+@media (max-width: 992px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
 
 
 .top-bar {
@@ -257,6 +282,7 @@ body {
     align-items: center;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     transition: transform 0.3s, box-shadow 0.3s;
+    color: white;
 }
 
 .stat-card:hover {
@@ -271,7 +297,7 @@ body {
 
 .stat-info h3 {
     font-size: 1rem;
-    color: var(--gray);
+    color: rgba(255, 255, 255, 0.8);
     margin-bottom: 5px;
     font-weight: 500;
 }
@@ -280,17 +306,24 @@ body {
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 5px;
+    color: white;
 }
 
 .stat-info span {
     font-size: 0.8rem;
-    color: var(--gray);
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.bg-blue { border-left: 4px solid var(--primary); }
-.bg-green { border-left: 4px solid var(--success); }
-.bg-orange { border-left: 4px solid var(--warning); }
-.bg-purple { border-left: 4px solid #7209b7; }
+/* Cores dos cards de estatísticas usando as variáveis do root */
+.stat-card.bg-primary { background-color: var(--card-bg-primary); }
+.stat-card.bg-warning { background-color: var(--card-bg-warning); }
+.stat-card.bg-secondary { background-color: var(--card-bg-secondary); }
+.stat-card.bg-danger { background-color: var(--card-bg-danger); }
+.stat-card.bg-gray { background-color: var(--card-bg-gray); }
+.stat-card.bg-dark { background-color: var(--card-bg-dark); }
+.stat-card.bg-success { background-color: var(--card-bg-success); }
+.stat-card.bg-primary-dark { background-color: var(--card-bg-primary-dark); }
+
 
 /* Table Card */
 .card {
@@ -356,22 +389,19 @@ tr:hover {
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 500;
+    text-transform: capitalize;
+    white-space: nowrap;
 }
 
-.status-pendente {
-    background: rgba(248, 150, 30, 0.1);
-    color: var(--warning);
-}
+/* Cores para os badges de status (ajuste conforme seu enum StatusAtendimento) */
+.status-aguardando_atendimento { background-color: #e0f2fe; color: #0284c7; }
+.status-aguardando_reuniao_time_tecnico { background-color: #fef3c7; color: #d97706; }
+.status-aguardando_alinhamento_campanha { background-color: #dbeafe; color: #1d4ed8; }
+.status-aguardando_divulgacao { background-color: #fee2e2; color: #dc2626; }
+.status-aguardando_resultados { background-color: #ede9fe; color: #7c3aed; }
+.status-aguardando_pagamento { background-color: #e5e7eb; color: #4b5563; }
+.status-vendido { background-color: #dcfce7; color: #16a34a; }
 
-.status-andamento {
-    background: rgba(67, 97, 238, 0.1);
-    color: var(--primary);
-}
-
-.status-concluido {
-    background: rgba(76, 201, 240, 0.1);
-    color: var(--success);
-}
 
 .action-btn {
     background: none;
@@ -683,33 +713,22 @@ tr:hover {
 }
 
 .menu-toggle-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  z-index: 1100;
-  display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 1100;
+    display: none;
 }
 
-.sidebar.collapsed ~ .main-content ~ .menu-toggle-btn,
-.menu-toggle-btn.active {
-  display: block;
-}
-
-
-/* Quando o menu estiver fechado (sidebar colapsada) centraliza e aumenta a search bar */
-.sidebar.collapsed ~ .main-content .top-bar .search-container {
-  margin: 0 auto;
-  width: 60%;
-  transition: all 0.3s ease;
-}
-
-.sidebar.collapsed ~ .main-content .top-bar {
-  justify-content: center;
+@media (max-width: 992px) {
+    .menu-toggle-btn {
+        display: block;
+    }
 }
